@@ -16,3 +16,17 @@
 * 利用tcpdump/wireshark ,netcat 
 * nc -l之後以socket client 連入   
 * 開socket server運行後以nc連入
+
+
+## the tcp_keepalive_client program
+
+You run this program as:
+
+    ./tcpkatest [-c CNT] [-d IDLE] [-i INTVL] HOST:PORT
+
+The program creates a TCP socket and sets the `SO_KEEPALIVE` socket option to
+`1`.  If any of the "-c", "-d", and "-i" options are specified, then the
+`TCP_KEEPCNT`, `TCP_KEEPIDLE`, and `TCP_KEEPINTVL` socket options are set on the
+socket to the respective option arguments.  Then the program connects to
+HOST:PORT and enters a loop between calling poll(2) for the POLLIN event and
+reading data.
