@@ -4,7 +4,7 @@
 * TCP_KEEPCNT  - tcp_keepalive_probes (重試幾次決定斷線)
 * TCP_KEEPINTVL - tcp_keepalive_intvl(ACK傳了多久沒回應要重試)
 * TCP_KEEPIDLE - tcp_keepalive_time (閒置多久時間開始傳ACK)  
-一般linux是預設socket是不使用keepalive的,linux判定斷線之後kernel內部直接關閉連結,在上層的應用無法callback處理.
+一般linux是預設socket不使用keepalive的,所以要在code開啟socket時就設定(類似example setsockopt),linux判定斷線之後kernel內部直接關閉連結,在上層的應用無法callback處理.
 
 ### Heartbeat:  
 之前常用在即時通訊(IM)等服務, 在應用層利用TCP packet自訂的protocol.  
