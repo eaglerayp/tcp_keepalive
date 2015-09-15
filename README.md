@@ -22,7 +22,7 @@
 
 You run this program as:
 
-    ./tcpkatest [-c CNT] [-d IDLE] [-i INTVL] HOST:PORT
+    ./tcp_ka_client [-c CNT] [-d IDLE] [-i INTVL] HOST:PORT
 
 The program creates a TCP socket and sets the `SO_KEEPALIVE` socket option to
 `1`.  If any of the "-c", "-d", and "-i" options are specified, then the
