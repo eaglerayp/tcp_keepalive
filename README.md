@@ -16,6 +16,8 @@
 * 利用tcpdump/wireshark ,netcat 
 * nc -l之後以socket client 連入   
 * 開socket server運行後以nc連入
+* ps -aux | grep tcp_ka    observe  child process pattern
+* sudo lsof -i | grep [port]  observerconnection state
 
 
 ### the tcp_keepalive_client program

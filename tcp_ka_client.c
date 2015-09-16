@@ -112,12 +112,12 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	(void) fprintf(stderr, "will connect to: %s port %d\n",
+	(void) fprintf(stderr, "going connect to: %s port %d\n",
 	    inet_ntoa(cp.cp_ip.sin_addr), ntohs(cp.cp_ip.sin_port));
-	(void) fprintf(stderr, "SO_KEEPALIVE  = %d\n", cp.cp_keepalive);
-	(void) fprintf(stderr, "TCP_KEEPIDLE  = %d\n", cp.cp_keepidle);
-	(void) fprintf(stderr, "TCP_KEEPCNT   = %d\n", cp.cp_keepcnt);
-	(void) fprintf(stderr, "TCP_KEEPINTVL = %d\n", cp.cp_keepintvl);
+	(void) fprintf(stderr, "set SO_KEEPALIVE  = %d\n", cp.cp_keepalive);
+	(void) fprintf(stderr, "set TCP_KEEPIDLE  = %d\n", cp.cp_keepidle);
+	(void) fprintf(stderr, "set TCP_KEEPCNT   = %d\n", cp.cp_keepcnt);
+	(void) fprintf(stderr, "set TCP_KEEPINTVL = %d\n", cp.cp_keepintvl);
 	rv = connectandwait(&cp);
 	return (rv == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }
@@ -212,7 +212,7 @@ connectandwait(connparams_t *cpp)
 		warn("setsockopt SO_KEEPALIVE");
 		goto cleanup;
 	}
-	printf("SO_KEEPALIVE:%d  cp keepalive:%d\n",SO_KEEPALIVE,cpp->cp_keepalive);
+	printf("SO_KEEPALIVE:%d  \n",SO_KEEPALIVE);
 	if (cpp->cp_keepidle != -1 &&
 	    setsockopt(sock, protop->p_proto, TCP_KEEPIDLE,
 	    &cpp->cp_keepidle, sizeof (cpp->cp_keepidle)) != 0) {

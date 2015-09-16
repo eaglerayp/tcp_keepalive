@@ -14,20 +14,13 @@
 int main(int argc, char *argv[] )
 {
    int listen_sock,clientsock,n;
-   clientsock=8989;
+   clientsock=abs(clientsock);  // random make it positive
    int optval;
    struct sockaddr_in serv_addr, client_addr;
    socklen_t optlen = sizeof(optval);
-   struct protoent *protop;
    pid_t     childpid;
    char buffer[15]="test keepalive";
    char mesg[1000];
-
-   protop = getprotobyname("tcp");
-   if (protop == NULL) {
-      warnx("protocol not found: \"tcp\"");
-      return (-1);
-   }
 
    /* Create the socket */
    if((listen_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
@@ -41,7 +34,7 @@ int main(int argc, char *argv[] )
       close(listen_sock);
       exit(EXIT_FAILURE);
    }
-   printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
+   printf("SO_KEEPALIVE default is %s\n", (optval ? "ON" : "OFF"));
 
    /* Set the option active */
    optval = 1;
@@ -55,21 +48,21 @@ int main(int argc, char *argv[] )
    printf("SO_KEEPALIVE set on socket\n");
 
    /* Check the status again */
-   if(getsockopt(listen_sock, protop->p_proto, TCP_KEEPIDLE, &optval, &optlen) < 0) {
+   if(getsockopt(listen_sock, IPPROTO_TCP, TCP_KEEPIDLE, &optval, &optlen) < 0) {
       perror("getsockopt()");
       close(listen_sock);
       exit(EXIT_FAILURE);
    }
    printf("TCP_KEEPIDLE is %d\n", optval );
       /* Check the status again */
-   if(getsockopt(listen_sock, protop->p_proto, TCP_KEEPCNT, &optval, &optlen) < 0) {
+   if(getsockopt(listen_sock, IPPROTO_TCP, TCP_KEEPCNT, &optval, &optlen) < 0) {
       perror("getsockopt()");
       close(listen_sock);
       exit(EXIT_FAILURE);
    }
    printf("TCP_KEEPCNT is %d\n", optval);
       /* Check the status again */
-   if(getsockopt(listen_sock, protop->p_proto, TCP_KEEPINTVL, &optval, &optlen) < 0) {
+   if(getsockopt(listen_sock, IPPROTO_TCP, TCP_KEEPINTVL, &optval, &optlen) < 0) {
       perror("getsockopt()");
       close(listen_sock);
       exit(EXIT_FAILURE);
@@ -101,16 +94,16 @@ int main(int argc, char *argv[] )
          perror("ERROR on accept");
          exit(1);
       }
-      printf("new newsockfd:%d\n",newsockfd);
-      getsockopt(newsockfd, SOL_SOCKET, SO_KEEPALIVE, &optval, &optlen) ;
-      printf("SO_KEEPALIVE:%d\n",optval);
-       getsockopt(newsockfd, SOL_SOCKET, TCP_KEEPINTVL, &optval, &optlen) ;
-      printf("TCP_KEEPINTVL:%d\n",optval);
-       getsockopt(newsockfd, SOL_SOCKET, TCP_KEEPCNT, &optval, &optlen) ;
-      printf("TCP_KEEPCNT:%d\n",optval);
-      printf("port number %d\n", ntohs(client_addr.sin_port));
+      /*getsockopt(newsockfd, SOL_SOCKET, SO_KEEPALIVE, &optval, &optlen) ;
+      printf("client SO_KEEPALIVE:%d\n",optval);*/
+      struct sockaddr_in* pV4Addr = (struct sockaddr_in*)&client_addr;
+      int ipAddr = pV4Addr->sin_addr.s_addr;
+      char ipstr[INET_ADDRSTRLEN];
+      inet_ntop( AF_INET, &ipAddr, ipstr, INET_ADDRSTRLEN );
+      printf("client ip:%s  port: %d\n",ipstr,ntohs(client_addr.sin_port));
       if((childpid=fork())==0){
-         printf("i am the child process, my process id is %d\n",getpid()); 
+         int pid=getpid();
+         printf("In the child process id: %d\n",pid); 
         close(listen_sock);
          while(1){
             n = recvfrom(newsockfd,mesg,1000,0,(struct sockaddr *)&client_addr,&clientsock);
@@ -120,7 +113,7 @@ int main(int argc, char *argv[] )
                   perror("error on close");
                   exit(1);
                }
-               printf("D/C close connection success\n");
+               printf("D/C, close connection successfully\n");
                break;
             }
             printf("-------------------------------------------------------%d\n",n);
@@ -129,7 +122,7 @@ int main(int argc, char *argv[] )
             printf("%s",mesg);
             printf("-------------------------------------------------------\n");
          }
-         printf("end work process\n");
+         printf("end child process %d\n",pid);
          _Exit(0);
       }
       close(newsockfd);
